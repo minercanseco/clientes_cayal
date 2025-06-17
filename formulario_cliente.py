@@ -25,10 +25,8 @@ class FormularioCliente:
         self._ventanas = Ventanas(self._master)
         self._instanciar_clases_de_apoyo()
         self._inicializar_variables_de_instancia()
-        self._crear_frames()
         self._cargar_componentes_forma()
-        self._cargar_eventos()
-        self._agregar_validaciones()
+        self._cargar_eventos_componentes_forma()
         self._cargar_info_componentes_forma()
 
         self._ventanas.configurar_ventana_ttkbootstrap('Formulario cliente')
@@ -60,60 +58,18 @@ class FormularioCliente:
         self._usuario_nombre = self._base_de_datos.fetchone('SELECT UserName FROM engUser WHERE UserID = ?',
                                                             (self._parametros.id_usuario))
 
-    def _crear_frames(self):
-        frames = {
-            'frame_principal': ('master', 'Datos cliente:',
-                                {'row': 0, 'column': 0, 'sticky': tk.NSEW}),
-            'frame_generales': ('frame_principal', 'Generales:',
-                                   {'row': 0, 'column': 0, 'pady': 5, 'padx': 5,
-                                    'sticky': tk.NSEW}),
-
-            'frame_fiscal': ('frame_principal', 'Fiscales:',
-                                {'row': 0, 'column': 1, 'pady': 5, 'padx': 5,
-                                 'sticky': tk.NSEW}),
-            'frame_botones': ('frame_principal', None,
-                             {'row': 1, 'column': 0, 'pady': 5, 'padx': 5,
-                              'sticky': tk.E}),
-        }
-        self._ventanas.crear_frames(frames)
-
     def _cargar_componentes_forma(self):
+        frame_principal = ttk.LabelFrame(self._master, text='Datos cliente:')
+        frame_principal.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
-        componentes = {
-            'tbx_cliente': ('frame_generales', None, 'Cliente:', None),
-            'tbx_ncomercial': ('frame_generales', None, 'NComercial:', None),
-            'tbx_telefono': ('frame_generales', None, 'Teléfono:', None),
-            'tbx_celular': ('frame_generales', None, 'Celular:', None),
-            'tbx_calle': ('frame_generales', None, 'Calle:', None),
-            'tbx_numero': ('frame_generales', None, 'Número:', None),
-            'txt_comentario': ('frame_generales', None, 'Comentarios', None),
-            'tbx_cp': ('frame_generales', None, 'CP:', None),
+        frame_generales = ttk.LabelFrame(frame_principal, text='Generales:')
+        frame_generales.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
-            'lbl_estado': ('Label', 'frame_generales', None),
-            'lbl_municipio': ('Label', 'frame_generales', None),
+        frame_fiscal = ttk.LabelFrame(frame_principal, text='Fiscales')
+        frame_fiscal.grid(row=0, column=1,  padx=5, pady=5, sticky=tk.NSEW)
 
-            'cbx_colonia': ('Combobox', 'frame_generales', 'readonly'),
-            'btn_domicilios': ('Button', 'frame_generales', 'success'),
-            'tbx_domicilios': ('Entry', 'frame_generales', None),
-            'tbx_envio': ('Entry', 'frame_generales', None),
-            'cbx_ruta': ('Combobox', 'frame_generales', 'readonly'),
-
-            'tbx_rfc': ('frame_fiscal', None, 'RFC:', None),
-            'tbx_cif': ('frame_fiscal', None, 'CIF:', None),
-            'btn_cif': ('frame_fiscal', 'info', 'CIF', None),
-
-            'cbx_regimen': ('frame_fiscal', None, 'Régimen:', None),
-            'cbx_formapago': ('frame_fiscal', None, 'FormaPago:', None),
-            'cbx_metodopago':('frame_fiscal', None, 'MétodoPago:', None),
-            'cbx_usocfdi': ('frame_fiscal', None, 'UsoCfdi:', None),
-            'txt_correo': ('frame_fiscal', None, 'Correo:', None),
-
-            'btn_guardar': ('frame_botones', 'info', 'Guardar', None),
-            'btn_cancelar': ('frame_botones', 'danger', 'Cancelar', None),
-            'btn_copiar': ('frame_botones', 'warning', 'Copiar', None),
-        }
-        self._ventanas.crear_componentes(componentes)
-        """
+        frame_botones = ttk.Frame(frame_principal)
+        frame_botones.grid(row=1, column=0, padx=5, pady=5, sticky=tk.E)
 
         nombres_componentes = {
             'tbx_cliente': ('Entry', frame_generales, None),
@@ -179,26 +135,42 @@ class FormularioCliente:
                 componente.grid(row=i, column=1, padx=5, pady=5, sticky=tk.W)
 
             self._componentes_forma[nombre] = componente
-        """
-    def _agregar_validaciones(self):
-        self._ventanas.agregar_validacion_tbx('tbx_telefono', 'telefono')
-        self._ventanas.agregar_validacion_tbx('tbx_celular', 'telefono')
-        self._ventanas.agregar_validacion_tbx('tbx_cp', 'codigo_postal')
-        self._ventanas.agregar_validacion_tbx('tbx_rfc', 'rfc')
-        self._ventanas.agregar_validacion_tbx('tbx_cif', 'cif')
 
-    def _cargar_eventos(self):
-        eventos = {
-            'tbx_cp': lambda event: self._cargar_info_por_cp(),
-            'cbx_colonia': lambda event: self._cargar_info_por_colonia(),
-            'btn_cancelar': self._master.destroy,
-            'btn_guardar': self._validar_inputs_formulario,
-            'btn_copiar': self._copiar_info_formulario,
-            'btn_cif': self._actualizar_por_cif,
-            'btn_domicilios': self._validar_cliente_con_adicionales
-        }
+    def _cargar_eventos_componentes_forma(self):
 
-        self._ventanas.cargar_eventos(eventos)
+        def agregar_validacion_tbx(nombre_tbx, tipo_validacion):
+            tbx = self._componentes_forma[nombre_tbx]
+            tbx.config(validate='focus',
+                                validatecommand=(self._master.register(
+                                    lambda text: self._ventanas.validar_entry(tbx, tipo_validacion)), '%P'))
+
+        agregar_validacion_tbx('tbx_telefono', 'telefono')
+        agregar_validacion_tbx('tbx_celular', 'telefono')
+        agregar_validacion_tbx('tbx_cp', 'codigo_postal')
+        agregar_validacion_tbx('tbx_rfc', 'rfc')
+        agregar_validacion_tbx('tbx_cif', 'cif')
+
+        tbx_cp = self._componentes_forma['tbx_cp']
+        tbx_cp.bind('<Return>', lambda event: self._cargar_info_por_cp())
+
+        cbx_colonia = self._componentes_forma['cbx_colonia']
+        cbx_colonia.bind('<<ComboboxSelected>>', lambda event: self._cargar_info_por_colonia())
+
+        btn_cancelar = self._componentes_forma['btn_cancelar']
+        btn_cancelar.config(command=lambda: self._master.destroy())
+
+        btn_guardar = self._componentes_forma['btn_guardar']
+        btn_guardar.config(command=lambda: self._validar_inputs_formulario())
+
+        # copia info del formulario al portapapeles
+        btn_copiar = self._componentes_forma['btn_copiar']
+        btn_copiar.config(command=lambda : self._copiar_info_formulario())
+
+        btn_cif = self._componentes_forma['btn_cif']
+        btn_cif.config(command = lambda : self._actualizar_por_cif())
+
+        btn_domicilios = self._componentes_forma['btn_domicilios']
+        btn_domicilios.config(command = lambda : self._validar_cliente_con_adicionales())
 
     def _cargar_info_por_cp(self):
         tbx_cp = self._componentes_forma['tbx_cp']
