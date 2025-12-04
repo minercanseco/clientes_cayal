@@ -9,7 +9,7 @@ from cliente_nuevo import ClienteNuevo
 
 if __name__ == '__main__':
     parametros = ParametrosContpaqi()
-    parametros.id_principal = 5536
+    #parametros.id_principal = 5536
 
     cliente = Cliente()
     utilerias = Utilerias()
