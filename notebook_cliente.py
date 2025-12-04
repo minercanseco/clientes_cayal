@@ -23,7 +23,7 @@ class NoteBookCliente:
 
         self._crear_frames()
         self._cargar_componentes()
-        self._ventanas.configurar_ventana_ttkbootstrap()
+        self._ventanas.configurar_ventana_ttkbootstrap('Cliente')
 
     def _crear_frames(self):
         frames = {
