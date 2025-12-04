@@ -3,8 +3,8 @@ import webbrowser
 
 import pyperclip
 
-from cliente.direccion_adicional import DireccionAdicional
-from cliente.nombre_direccion import NombreDireccion
+from direccion_adicional import DireccionAdicional
+from nombre_direccion import NombreDireccion
 
 
 class FormularioClienteControlador:
@@ -17,7 +17,6 @@ class FormularioClienteControlador:
         if self._modelo.cliente.business_entity_id != 0:
             direccion_fiscal = self._crear_direccion_fiscal()
             informacion_fiscal = self._crear_informacion_fiscal()
-            print(informacion_fiscal)
             self._modelo.cliente.add_fiscal_detail_backup(informacion_fiscal)
             self._modelo.cliente.add_address_detail_backup(direccion_fiscal)
 
