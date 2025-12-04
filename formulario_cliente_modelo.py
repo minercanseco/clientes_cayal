@@ -187,9 +187,10 @@ class FormularioClienteModelo:
 
     def obtener_estado_y_municipio_colonia(self, colonia):
         consulta = [reg for reg in self.consulta_colonias if reg['City'] == colonia]
-
         if consulta:
             return consulta[0]['State'], consulta[0]['Municipality']
+        if not consulta:
+            return 'Campeche', 'Campeche'
 
     def buscar_tipo_ruta_id(self, nombre_ruta):
         consulta = [ruta['TipoRutaID'] for ruta in self.consulta_rutas
