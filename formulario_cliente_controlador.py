@@ -665,6 +665,15 @@ class FormularioClienteControlador:
             if address_detail_id == 0:
                 continue
             self._modelo.base_de_datos.borrar_direccion(address_detail_id, self._modelo.user_id)
+            self._crear_registro_bitacora_clientes(
+                'ELIMINACIÓN DE DIRECCIÓN ADICIONAL',
+                '',
+                '',
+                self._modelo.user_name,
+                self._modelo.cliente.business_entity_id,
+                30, # eliminacion de direccion adiocional zvwTipoIncidenciaBitacoraClientes
+                address_detail_id
+            )
 
         self._modelo.base_de_datos.crear_cliente(self._modelo.cliente, self._modelo.user_id)
 
@@ -1119,18 +1128,7 @@ class FormularioClienteControlador:
             valor_nuevo = str(valor_nuevo)[:255]
 
             # Llamada al procedimiento almacenado
-            self._modelo.base_de_datos.command(
-                """
-                EXEC InsertarBitacoraCambiosClientes
-                    @incidencia         = ?,
-                    @valor_anterior     = ?,
-                    @valor_nuevo        = ?,
-                    @nombre_usuario     = ?,
-                    @business_entity_id = ?,
-                    @incidencia_id      = ?,
-                    @address_detail_id  = ?
-                """,
-                (
+            self._crear_registro_bitacora_clientes(
                     incidencia,
                     valor_anterior,
                     valor_nuevo,
@@ -1138,5 +1136,37 @@ class FormularioClienteControlador:
                     business_entity_id,
                     incidencia_id,
                     address_detail_id
-                )
+
             )
+
+    def _crear_registro_bitacora_clientes(self,
+                                          incidencia,
+                                          valor_anterior,
+                                          valor_nuevo,
+                                          nombre_usuario,
+                                          business_entity_id,
+                                          incidencia_id,
+                                          address_detail_id
+                                          ):
+        # Llamada al procedimiento almacenado
+        self._modelo.base_de_datos.command(
+            """
+            EXEC InsertarBitacoraCambiosClientes
+                @incidencia         = ?,
+                @valor_anterior     = ?,
+                @valor_nuevo        = ?,
+                @nombre_usuario     = ?,
+                @business_entity_id = ?,
+                @incidencia_id      = ?,
+                @address_detail_id  = ?
+            """,
+            (
+                incidencia,
+                valor_anterior,
+                valor_nuevo,
+                nombre_usuario,
+                business_entity_id,
+                incidencia_id,
+                address_detail_id
+            )
+        )
