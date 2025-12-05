@@ -664,6 +664,7 @@ class FormularioClienteControlador:
         for address_detail_id in self._modelo.cliente.deleted_addresses:
             if address_detail_id == 0:
                 continue
+
             self._modelo.base_de_datos.borrar_direccion(address_detail_id, self._modelo.user_id)
             self._crear_registro_bitacora_clientes(
                 'ELIMINACIÓN DE DIRECCIÓN ADICIONAL',
@@ -681,6 +682,8 @@ class FormularioClienteControlador:
                                                  self._modelo.user_id,
                                                  self._modelo.user_name
                                                  )
+
+        self._registrar_bitacora_direcciones_nuevas(self._modelo.cliente, self._modelo.user_name)
 
         self._cerrar_notebook()
 
@@ -1170,3 +1173,62 @@ class FormularioClienteControlador:
                 address_detail_id
             )
         )
+
+    def _registrar_bitacora_direcciones_nuevas(self, cliente, nombre_usuario):
+        """
+        Registra en bitácora las direcciones adicionales NUEVAS.
+
+        - Usa cliente.addresses_details_backup como estado original (BD).
+        - Se consideran nuevas:
+            * AddressDetailID == 0  (capturadas nuevas en UI)
+            * AddressDetailID > 0 y NO existe en el backup.
+
+        - Solo aplica a direcciones ADICIONALES (no la fiscal):
+            * IsMainAddress != 1  y  AddressTypeID != 1
+        """
+
+        backup = getattr(cliente, "addresses_details_backup", []) or []
+        if not backup:
+            # Si no hay backup, asumimos que no hay comparativo (cliente nuevo o sin direcciones previas)
+            return
+
+        # IDs de direcciones que ya existían en BD
+        backup_ids = {
+            det.get("AddressDetailID")
+            for det in backup
+            if det.get("AddressDetailID")
+        }
+
+        for detalle in cliente.addresses_details:
+            address_detail_id = detalle.get("AddressDetailID", 0) or 0
+            is_main = detalle.get("IsMainAddress", 0) or 0
+            address_type_id = detalle.get("AddressTypeID", 0) or 0
+
+            # Saltar la dirección fiscal
+            if is_main == 1 or address_type_id == 1:
+                continue
+
+            # ¿Es nueva?
+            es_nueva = False
+
+            # 1) Si el ID sigue en 0, es una dirección recién capturada
+            if address_detail_id == 0:
+                es_nueva = True
+            # 2) Si tiene ID > 0 pero no está en el backup, también es nueva
+            elif address_detail_id not in backup_ids:
+                es_nueva = True
+
+            if not es_nueva:
+                continue
+
+            # Registrar en bitácora el alta de la dirección adicional
+            # Si address_detail_id es 0, se guarda así (el SP lo soporta).
+            self._crear_registro_bitacora_clientes(
+                'ALTA DE DIRECCIÓN ADICIONAL',
+                '',
+                '',
+                nombre_usuario,
+                cliente.business_entity_id,
+                28,  # ID motivo: ALTA DE DIRECCIÓN ADICIONAL
+                address_detail_id  # puede ser 0 si aún no existe en BD
+            )
