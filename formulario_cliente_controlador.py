@@ -442,7 +442,7 @@ class FormularioClienteControlador:
                     )
                     return
 
-                if tipo == 'cbx' and valor == 'Seleccione:':
+                if tipo == 'cbx' and valor == 'Seleccione':
                     self._interfaz.ventanas.mostrar_mensaje(
                         f'Debe agregar un valor al campo: {nombre}'
                     )
@@ -771,6 +771,11 @@ class FormularioClienteControlador:
                 valor_str = ''
             else:
                 valor_str = str(valor).strip()
+
+            if clave == 'City' and info_direccion_adicional['City'] == 'Seleccione':
+                mensaje = f"Debe capturar {etiqueta} para la dirección: {nombre_direccion}."
+                self._interfaz.ventanas.mostrar_mensaje(mensaje)
+                return
 
             if not valor_str:
                 mensaje = f"Debe capturar {etiqueta} para la dirección: {nombre_direccion}."
