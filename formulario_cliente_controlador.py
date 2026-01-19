@@ -3,6 +3,7 @@ import webbrowser
 
 import pyperclip
 
+from buscar_info_cif import BuscarInfoCif
 from direccion_adicional import DireccionAdicional
 from nombre_direccion import NombreDireccion
 
@@ -72,9 +73,25 @@ class FormularioClienteControlador:
 
     def _actualizar_por_cif(self):
         cif = self._interfaz.ventanas.obtener_input_componente('tbx_cif')
+        rfc = self._interfaz.ventanas.obtener_input_componente('tbx_rfc')
 
         if not self._modelo.utilerias.es_cif(cif):
             return
+
+        if not self._modelo.utilerias.es_rfc(rfc):
+            return
+
+        inst = BuscarInfoCif(self._modelo.parametros, rfc, cif, self._modelo.cliente)
+        ok = inst.run()  # síncrono, sin ventana
+
+        if not ok:
+            # aquí decides cómo avisar (label, messagebox, log, etc.)
+            print("[CIF] error:", inst.error)
+
+            return
+
+        self._rellenar_componentes()
+
 
     def _rellenar_componentes(self):
         MAPEO_COMPONENTES_CLIENTE = {
