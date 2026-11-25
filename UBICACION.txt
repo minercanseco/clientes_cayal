@@ -1,0 +1,24 @@
+UBICACIÓN DE CLIENTES Y DIRECCIONES
+
+No requiere instalar SQL adicional: los campos Latitude, Longitude y AccuracyMeters
+ya existen en dbo.orgAddressDetail. El script anterior de instalación queda obsoleto.
+El aplicativo actualiza esos campos y llama a InsertarBitacoraCambiosClientes,
+con el mismo patrón existente: incidencia, valor anterior/nuevo, usuario, cliente e ID
+de dirección. Los IDs definidos desde el aplicativo son 44 (alta), 45 (cambio) y
+46 (eliminación); no se altera el catálogo de incidencias.
+El UPDATE y su registro de bitácora se ejecutan en una misma transacción.
+
+La ventana muestra el enlace y los botones Ver en Maps, Aceptar y Cancelar.
+Aceptar valida y conserva internamente las coordenadas; Guardar cliente las persiste.
+Ver en Maps abre el enlace actualmente escrito. Cancelar descarta la edición.
+El cuadro vacío no elimina la ubicación. La precisión se conserva si no cambia el
+link precargado y se deja vacía cuando el enlace nuevo no proporciona ese dato.
+Cliente y direcciones adicionales usan las barras de herramientas de Ventanas.
+
+Los enlaces cortos requieren internet. Si no se resuelven, abrir el enlace en Maps
+y copiar el enlace completo del marcador. Los centros del mapa no se guardan como
+ubicación de dirección. Los datos generales del cliente mantienen su guardado previo.
+
+Pruebas: PYTHONPATH=. python -m unittest discover -s tests -v
+Se validó la lógica con una base simulada; queda pendiente probar el guardado en la
+base real de SQL Server, que no está accesible desde este entorno.
