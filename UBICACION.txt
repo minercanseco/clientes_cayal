@@ -11,7 +11,9 @@ El UPDATE y su registro de bitácora se ejecutan en una misma transacción.
 La ventana muestra el enlace y los botones Ver en Maps, Aceptar y Cancelar.
 Aceptar valida y conserva internamente las coordenadas; Guardar cliente las persiste.
 Ver en Maps abre el enlace actualmente escrito. Cancelar descarta la edición.
-El cuadro vacío no elimina la ubicación. La precisión se conserva si no cambia el
+Borrar el enlace y pulsar Aceptar prepara la eliminación de la ubicación.
+Guardar cliente pone Latitude, Longitude y AccuracyMeters en NULL y registra la
+eliminación en la bitácora existente. La precisión se conserva si no cambia el
 link precargado y se deja vacía cuando el enlace nuevo no proporciona ese dato.
 Cliente y direcciones adicionales usan las barras de herramientas de Ventanas.
 
