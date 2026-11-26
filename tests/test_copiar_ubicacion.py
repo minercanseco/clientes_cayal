@@ -63,7 +63,7 @@ class CopiarUbicacionTests(unittest.TestCase):
                 self.assertIn("*Correo:*", message)
                 self.assertIn("*RFC:*", message)
                 self.assertIn("*Uso CFDI:*", message)
-                self.assertTrue(message.endswith("https://www.google.com/maps/?q=19,-90"))
+                self.assertIn("correctos?  \n\n📍 *Ubicación del domicilio:*\nhttps://www.google.com/maps/?q=19,-90\n\n👤 *Cliente:*", message)
                 self.assertNotIn("88", message)
                 reader.return_value = ubicacion.LEYENDA_UBICACION_WHATSAPP
                 message = namespace[method.name](obj)
